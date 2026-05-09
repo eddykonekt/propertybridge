@@ -18,15 +18,19 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { MessagesService } from './messages.service';
 import { MarkReadDto, SendMessageDto } from './message.dto';
+import { Roles, RolesGuard } from '../auth/roles.guard';
+import { UserRole } from '../users/user.entity';
 
 @ApiTags('Messages')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('messages')
 export class MessagesController {
   constructor(private messagesService: MessagesService) {}
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TENANT, UserRole.PROPERTY_MANAGER)
   @ApiOperation({
     summary: 'Send a message',
     description:
@@ -38,6 +42,8 @@ export class MessagesController {
   }
 
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TENANT, UserRole.PROPERTY_MANAGER)
   @ApiOperation({
     summary: 'Get my messages',
     description: 'Tenants see their own messages. Admins see all messages addressed to them.',
@@ -48,6 +54,8 @@ export class MessagesController {
   }
 
   @Get('threads')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TENANT, UserRole.PROPERTY_MANAGER, UserRole.LANDLORD)
   @ApiOperation({
     summary: 'Get all conversation threads',
     description: 'Returns the latest message per thread for inbox view',
@@ -58,6 +66,8 @@ export class MessagesController {
   }
 
   @Get('thread/:threadId')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TENANT, UserRole.PROPERTY_MANAGER, UserRole.LANDLORD)
   @ApiOperation({ summary: 'Get all messages in a thread' })
   @ApiParam({ name: 'threadId', description: 'Thread UUID' })
   @ApiResponse({ status: 200, description: 'Messages in the thread' })
@@ -68,6 +78,8 @@ export class MessagesController {
   }
 
   @Patch('read')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TENANT, UserRole.PROPERTY_MANAGER)
   @ApiOperation({ summary: 'Mark a message as read' })
   @ApiResponse({ status: 200, description: 'Message marked as read' })
   markRead(@Request() req, @Body() dto: MarkReadDto) {

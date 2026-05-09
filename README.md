@@ -1,6 +1,6 @@
 # Propertybridge — Tenant Communication & Maintenance Portal
 
-A full-stack web application that replaces WhatsApp/call-based tenant communication with a structured, role-aware portal. Tenants can message property managers and submit maintenance requests; property managers can reply and manage request statuses; landlords have read-only visibility.
+A structured, role-aware tenant communication portal. Tenants can message property managers and submit maintenance requests; property managers can reply and manage request statuses; landlords have read-only visibility.
 
 ---
 
@@ -116,7 +116,7 @@ Messages have a `threadId` UUID. When a tenant sends the first message a new UUI
 Authorization is not just at the route guard level, the service methods themselves check `userRole` before returning data. A tenant calling `GET /maintenance` only gets their own records even if they craft a raw HTTP request. Guards prevent route access; service logic enforces data ownership.
 
 ### 3. `synchronize: true` for development, migrations for production
-TypeORM's auto-sync is fast for prototyping — no migration files to maintain while the schema is still evolving. Please `NOTE:` this must be turned off before production. In production you would need to run `typeorm migration:generate` and `migration:run`.
+TypeORM's auto-sync is fast for prototyping — no migration files to maintain while the schema is still evolving. Please `NOTE:` this must be turned to `false` before production. In production you would need to run `typeorm migration:generate` and `migration:run`.
 
 ### 4. Landlord is view-only
 The brief says landlords can "view" messages — not reply. The backend doesn't block them from calling `POST /messages` (they're authenticated), but the frontend hides the reply box for landlord role. A stricter implementation would add a `Roles(PM)` guard on the send endpoint. Left as an extension point to keep scope tight.

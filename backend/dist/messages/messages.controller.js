@@ -18,6 +18,8 @@ const swagger_1 = require("@nestjs/swagger");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const messages_service_1 = require("./messages.service");
 const message_dto_1 = require("./message.dto");
+const roles_guard_1 = require("../auth/roles.guard");
+const user_entity_1 = require("../users/user.entity");
 let MessagesController = class MessagesController {
     constructor(messagesService) {
         this.messagesService = messagesService;
@@ -41,6 +43,8 @@ let MessagesController = class MessagesController {
 exports.MessagesController = MessagesController;
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(user_entity_1.UserRole.TENANT, user_entity_1.UserRole.PROPERTY_MANAGER),
     (0, swagger_1.ApiOperation)({
         summary: 'Send a message',
         description: 'Tenants send to a property manager or broadcast. PMs/Landlords can reply to tenants.',
@@ -54,6 +58,8 @@ __decorate([
 ], MessagesController.prototype, "send", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(user_entity_1.UserRole.TENANT, user_entity_1.UserRole.PROPERTY_MANAGER),
     (0, swagger_1.ApiOperation)({
         summary: 'Get my messages',
         description: 'Tenants see their own messages. Admins see all messages addressed to them.',
@@ -66,6 +72,8 @@ __decorate([
 ], MessagesController.prototype, "getMyMessages", null);
 __decorate([
     (0, common_1.Get)('threads'),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(user_entity_1.UserRole.TENANT, user_entity_1.UserRole.PROPERTY_MANAGER, user_entity_1.UserRole.LANDLORD),
     (0, swagger_1.ApiOperation)({
         summary: 'Get all conversation threads',
         description: 'Returns the latest message per thread for inbox view',
@@ -78,6 +86,8 @@ __decorate([
 ], MessagesController.prototype, "getAllThreads", null);
 __decorate([
     (0, common_1.Get)('thread/:threadId'),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(user_entity_1.UserRole.TENANT, user_entity_1.UserRole.PROPERTY_MANAGER, user_entity_1.UserRole.LANDLORD),
     (0, swagger_1.ApiOperation)({ summary: 'Get all messages in a thread' }),
     (0, swagger_1.ApiParam)({ name: 'threadId', description: 'Thread UUID' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Messages in the thread' }),
@@ -91,6 +101,8 @@ __decorate([
 ], MessagesController.prototype, "getThread", null);
 __decorate([
     (0, common_1.Patch)('read'),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(user_entity_1.UserRole.TENANT, user_entity_1.UserRole.PROPERTY_MANAGER),
     (0, swagger_1.ApiOperation)({ summary: 'Mark a message as read' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Message marked as read' }),
     __param(0, (0, common_1.Request)()),
@@ -102,7 +114,7 @@ __decorate([
 exports.MessagesController = MessagesController = __decorate([
     (0, swagger_1.ApiTags)('Messages'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('messages'),
     __metadata("design:paramtypes", [messages_service_1.MessagesService])
 ], MessagesController);

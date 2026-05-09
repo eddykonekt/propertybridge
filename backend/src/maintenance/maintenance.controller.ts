@@ -26,12 +26,14 @@ import {
 
 @ApiTags('Maintenance Requests')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('maintenance')
 export class MaintenanceController {
   constructor(private maintenanceService: MaintenanceService) {}
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TENANT)
   @ApiOperation({
     summary: 'Submit a new maintenance request (tenant only)',
     description: 'Creates a new maintenance request with status OPEN by default.',
@@ -43,6 +45,8 @@ export class MaintenanceController {
   }
 
   @Get()
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TENANT, UserRole.PROPERTY_MANAGER, UserRole.LANDLORD)
   @ApiOperation({
     summary: 'Get maintenance requests',
     description: 'Tenants see their own requests. Admins (PM/Landlord) see all requests.',
@@ -62,6 +66,8 @@ export class MaintenanceController {
   }
 
   @Get(':id')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.TENANT, UserRole.PROPERTY_MANAGER, UserRole.LANDLORD)
   @ApiOperation({ summary: 'Get a single maintenance request by ID' })
   @ApiParam({ name: 'id', description: 'Maintenance request UUID' })
   @ApiResponse({ status: 200, description: 'The maintenance request' })

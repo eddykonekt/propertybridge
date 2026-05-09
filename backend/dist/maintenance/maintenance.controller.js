@@ -43,6 +43,8 @@ let MaintenanceController = class MaintenanceController {
 exports.MaintenanceController = MaintenanceController;
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(user_entity_1.UserRole.TENANT),
     (0, swagger_1.ApiOperation)({
         summary: 'Submit a new maintenance request (tenant only)',
         description: 'Creates a new maintenance request with status OPEN by default.',
@@ -57,6 +59,8 @@ __decorate([
 ], MaintenanceController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(user_entity_1.UserRole.TENANT, user_entity_1.UserRole.PROPERTY_MANAGER, user_entity_1.UserRole.LANDLORD),
     (0, swagger_1.ApiOperation)({
         summary: 'Get maintenance requests',
         description: 'Tenants see their own requests. Admins (PM/Landlord) see all requests.',
@@ -79,6 +83,8 @@ __decorate([
 ], MaintenanceController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)(':id'),
+    (0, common_1.UseGuards)(roles_guard_1.RolesGuard),
+    (0, roles_guard_1.Roles)(user_entity_1.UserRole.TENANT, user_entity_1.UserRole.PROPERTY_MANAGER, user_entity_1.UserRole.LANDLORD),
     (0, swagger_1.ApiOperation)({ summary: 'Get a single maintenance request by ID' }),
     (0, swagger_1.ApiParam)({ name: 'id', description: 'Maintenance request UUID' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'The maintenance request' }),
@@ -112,7 +118,7 @@ __decorate([
 exports.MaintenanceController = MaintenanceController = __decorate([
     (0, swagger_1.ApiTags)('Maintenance Requests'),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, common_1.Controller)('maintenance'),
     __metadata("design:paramtypes", [maintenance_service_1.MaintenanceService])
 ], MaintenanceController);
