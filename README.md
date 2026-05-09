@@ -125,7 +125,7 @@ The brief says landlords can "view" messages — not reply. The backend doesn't 
 If a tenant doesn't pick a specific recipient, `recipientId` is `null`. Admin inbox queries include `WHERE recipientId IS NULL OR recipientId = :userId`, so all PMs see broadcast messages. This mirrors the real-world scenario where a tenant submits a general query.
 
 ---
-
+ 
 ## System Thinking
 
 ### 1. How would you improve this system to support real-time messaging?
