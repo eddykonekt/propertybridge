@@ -68,7 +68,7 @@ npm run start:dev
 The API will be live at: **http://localhost:5000/api**
 Swagger docs at: **http://localhost:5000/api/docs**
 
-> `synchronize: true` is set in development — TypeORM will auto-create all tables on first run. Set this to `false` and use migrations before going to production.
+> `NOTE: synchronize: true` is set in development — TypeORM will auto-create all tables on first run. Set this to `false` and use migrations before going to production.
 
 ### 3. Frontend
 
@@ -110,13 +110,13 @@ Full interactive docs: `http://localhost:5000/api/docs`
 ## Key Design Decisions
 
 ### 1. Thread model for messages
-Messages have a `threadId` UUID. When a tenant sends the first message a new UUID is generated. Replies pass the same `threadId` back. This keeps the API simple (no separate `threads` table) while enabling a proper conversation view. It mirrors how email threads work — familiar and extensible.
+Messages have a `threadId` UUID. When a tenant sends the first message a new UUID is generated. Replies pass the same `threadId` back. This keeps the API simple (no separate `threads` table) while enabling a proper conversation view. It mirrors how email threads work; familiar and extensible.
 
 ### 2. Role-scoped data access in the service layer
-Authorization isn't just at the route guard level — the service methods themselves check `userRole` before returning data. A tenant calling `GET /maintenance` only gets their own records even if they craft a raw HTTP request. Guards prevent route access; service logic enforces data ownership.
+Authorization is not just at the route guard level, the service methods themselves check `userRole` before returning data. A tenant calling `GET /maintenance` only gets their own records even if they craft a raw HTTP request. Guards prevent route access; service logic enforces data ownership.
 
 ### 3. `synchronize: true` for development, migrations for production
-TypeORM's auto-sync is fast for prototyping — no migration files to maintain while the schema is still evolving. The README clearly flags this must be turned off before production. In prod you'd run `typeorm migration:generate` and `migration:run`.
+TypeORM's auto-sync is fast for prototyping — no migration files to maintain while the schema is still evolving. Please `NOTE:` this must be turned off before production. In production you would need to run `typeorm migration:generate` and `migration:run`.
 
 ### 4. Landlord is view-only
 The brief says landlords can "view" messages — not reply. The backend doesn't block them from calling `POST /messages` (they're authenticated), but the frontend hides the reply box for landlord role. A stricter implementation would add a `Roles(PM)` guard on the send endpoint. Left as an extension point to keep scope tight.
@@ -126,7 +126,7 @@ If a tenant doesn't pick a specific recipient, `recipientId` is `null`. Admin in
 
 ---
 
-## System Thinking — Short Answers
+## System Thinking
 
 ### 1. How would you improve this system to support real-time messaging?
 
@@ -154,13 +154,3 @@ Three layers:
 2. **Transactional writes**: Wrap related writes (e.g. create message + update thread's `lastMessageAt`) in a TypeORM `QueryRunner` transaction. Either both succeed or neither does — no partial state.
 
 3. **Delivery confirmation + retry on the frontend**: The send button disables itself while the request is in-flight. If the API returns an error, the user sees it immediately and can retry. For a higher-reliability system, you'd queue the outbound message in IndexedDB (or a service worker) and retry with exponential backoff if the network is down — effectively an offline-first send queue. On the backend, a message queue (BullMQ + Redis) would decouple write acknowledgment from any downstream processing (notifications, emails) so a failed email doesn't roll back the message save.
-
----
-
-## What I'd add next (out of scope for 72h)
-
-- Email notifications when a new message arrives or maintenance status changes (Nodemailer / Resend)
-- Real file upload (Multer + S3 pre-signed URLs) instead of image URL field
-- Pagination on all list endpoints
-- Admin tenant management (assign tenants to properties)
-- Unit + e2e tests (Jest for service logic, Supertest for controllers)
