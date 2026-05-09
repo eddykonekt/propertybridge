@@ -1,2 +1,5 @@
 .env
 .env.*
+backend/dist/
+*.map
+*.tsbuildinfo
